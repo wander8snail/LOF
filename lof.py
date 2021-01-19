@@ -169,8 +169,9 @@ class RUN:
         for k, v in self.stra_dic.items():
             prep = self.strategy_ext_per(k)
             msg.append({'策略':v, '涨幅估值':prep})
+            
         if msg:
-            md = self.md_lof(info_lof)
+            md = self.md_lof(msg)
             self.message(self.apiKey, "蛋卷-策略: " + datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime("%m-%d %H:%M"), md)
 
         print(msg)
