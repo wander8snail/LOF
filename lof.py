@@ -14,9 +14,13 @@ class RUN:
         if "LOF" and "content" not in list(self.cp.sections()):
             raise Exception("Please create config.cfg first")
         self.content = self.cp._sections['content']
-
-        self.LOFList = json.loads(self.cp.get('LOF','LOFList'))
+        self.data_info = self.cp._sections['data_info']
+        self.LOFList = self.cp.get('LOF','LOFList').strip('[').strip(']').split(', ')
         self.LOFList.sort()
+
+        self.FundList = self.cp.get('LOF','FundList').strip('[').strip(']').split(', ')
+        self.FundList.sort()
+
         self.stra_dic = eval(self.cp.get('DANJUAN','stra_dic'))
 
         self.disLimit = self.cp.getfloat('LOF', 'disLimit')
@@ -130,6 +134,34 @@ class RUN:
         except:
             pass
 
+
+    # 获取关注基金阶段涨幅,
+    def get_net_rate(self):
+        sess = requests.Session()
+        header = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.80 Safari/537.36",}
+        sess.headers.update(header)
+
+        res = []
+        for fund in self.FundList:
+            url_fund = 'http://fund.10jqka.com.cn/data/client/myfund/{}'.format(fund)
+            r = sess.get(url_fund)
+            if r.status_code == 200 :
+                r = r.json()
+            else:
+                return
+
+            s = {}
+            row = r['data'][0]
+            for key, value in self.data_info.items():
+                if abs(float(row['rate'])) >= 2 or abs(float(row['week'])) >= 5:
+                    s[key] = row[value] if value != "code" else "".join(["[", row[value], "](http://fund.10jqka.com.cn/", fund, ")"])
+
+            if s:
+                res.append(s)
+
+        return res
+
+
     def fd_est(self, df_pos):
         df_pos['time'], df_pos['ext_nav'] = pd.Timestamp.now(), 0
         for i, r in df_pos.iterrows():
@@ -154,27 +186,36 @@ class RUN:
         res = "\n".join(res)
         return res
 
+
     def message(self, key, title, body):
         msg_url = "https://sc.ftqq.com/{}.send?text={}&desp={}".format(key, title, body)
         requests.get(msg_url)
 
+
     def main(self):
-        info_lof = self.getLOFInfo(id)
-        print(info_lof)
-        if len(info_lof):
-            md = self.md_lof(info_lof)
-            self.message(self.apiKey, "LOF-溢价: " + datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime("%m-%d %H:%M"), md)
+        nowt = datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime("%m-%d %H:%M")
 
-        msg = []
-        for k, v in self.stra_dic.items():
-            prep = self.strategy_ext_per(k)
-            msg.append({'策略':v, '涨幅估值':prep})
-            
-        if msg:
-            md = self.md_lof(msg)
-            self.message(self.apiKey, "蛋卷-策略: " + datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime("%m-%d %H:%M"), md)
+        if nowt[6:8] == '08' or nowt[6:8] == '21':
+            fund_info = self.get_net_rate()
+            if len(fund_info):
+                md = self.md_lof(fund_info)
+                self.message(self.apiKey, "基金-走势: " + nowt, md)
+                print(md)
+                
+        elif nowt[6:8] == '14':
+            info_lof = self.getLOFInfo(id)
+            if len(info_lof):
+                md = self.md_lof(info_lof)
+                self.message(self.apiKey, "LOF-溢价: " + nowt, md)
 
-        print(msg)
+            msg = []
+            for k, v in self.stra_dic.items():
+                prep = self.strategy_ext_per(k)
+                msg.append({'策略':v, '涨幅估值':prep})
+            if msg:
+                md = self.md_lof(msg)
+                self.message(self.apiKey, "蛋卷-策略: " + nowt, md)
+
 
 if __name__ == "__main__":
     lof = RUN()
