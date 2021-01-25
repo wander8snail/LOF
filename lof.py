@@ -197,7 +197,7 @@ class RUN:
 
         if nowt[6:8] == '08' or nowt[6:8] == '21':
             fund_info = self.get_net_rate()
-            if len(fund_info):
+            if fund_info:
                 md = self.md_lof(fund_info)
                 self.message(self.apiKey, "基金-走势: " + nowt, md)
                 print(md)
