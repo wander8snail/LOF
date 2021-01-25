@@ -195,7 +195,7 @@ class RUN:
     def main(self):
         nowt = datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime("%m-%d %H:%M")
 
-        if nowt[6:8] == '8' or nowt[6:8] == '21':
+        if nowt[6:8] == '08' or nowt[6:8] == '21':
             fund_info = self.get_net_rate()
             if len(fund_info):
                 md = self.md_lof(fund_info)
