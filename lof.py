@@ -195,14 +195,14 @@ class RUN:
     def main(self):
         nowt = datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime("%m-%d %H:%M")
 
-        if nowt[6:8] == '10' or nowt[6:8] == '21':
+        if nowt[6:8] == '8' or nowt[6:8] == '21':
             fund_info = self.get_net_rate()
             if len(fund_info):
                 md = self.md_lof(fund_info)
                 self.message(self.apiKey, "基金-走势: " + nowt, md)
                 print(md)
                 
-        elif nowt[6:8] == '14':
+        elif nowt[6:8] == '14' or nowt[6:8] == '13':
             info_lof = self.getLOFInfo(id)
             if len(info_lof):
                 md = self.md_lof(info_lof)
