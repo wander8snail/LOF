@@ -196,25 +196,25 @@ class RUN:
         nowt = datetime.now(tz=pytz.timezone("Asia/Shanghai")).strftime("%m-%d %H:%M")
 
 #         if nowt[6:8] == '08' or nowt[6:8] == '21':
-            fund_info = self.get_net_rate()
-            if fund_info:
-                md = self.md_lof(fund_info)
-                self.message(self.apiKey, "基金-走势: " + nowt, md)
-                print(md)
+        fund_info = self.get_net_rate()
+        if fund_info:
+            md = self.md_lof(fund_info)
+            self.message(self.apiKey, "基金-走势: " + nowt, md)
+            print(md)
                 
 #         elif nowt[6:8] == '14' or nowt[6:8] == '13':
-            info_lof = self.getLOFInfo(id)
-            if len(info_lof):
-                md = self.md_lof(info_lof)
-                self.message(self.apiKey, "LOF-溢价: " + nowt, md)
+        info_lof = self.getLOFInfo(id)
+        if len(info_lof):
+            md = self.md_lof(info_lof)
+            self.message(self.apiKey, "LOF-溢价: " + nowt, md)
 
-            msg = []
-            for k, v in self.stra_dic.items():
-                prep = self.strategy_ext_per(k)
-                msg.append({'策略':v, '涨幅估值':prep})
-            if msg:
-                md = self.md_lof(msg)
-                self.message(self.apiKey, "蛋卷-策略: " + nowt, md)
+        msg = []
+        for k, v in self.stra_dic.items():
+            prep = self.strategy_ext_per(k)
+            msg.append({'策略':v, '涨幅估值':prep})
+        if msg:
+            md = self.md_lof(msg)
+            self.message(self.apiKey, "蛋卷-策略: " + nowt, md)
 
 
 if __name__ == "__main__":
