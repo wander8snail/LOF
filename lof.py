@@ -42,7 +42,7 @@ class RUN:
             r = r.json()
         else:
             return
-        rows = [row["cell"] for row in r["rows"] if int(row["id"]) in self.LOFList]
+        rows = [row["cell"] for row in r["rows"] if row["id"] in self.LOFList]
         res = []
         for row in rows:
             discount_rt = float(row["discount_rt"][:-1])
